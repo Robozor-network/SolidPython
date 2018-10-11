@@ -9,7 +9,7 @@
 #
 
 
-import os 
+import os,time
 import sys
 import regex as re
 import inspect
@@ -117,6 +117,26 @@ def scad_render_to_file(scad_object, filepath=None, file_header='', include_orig
     rendered_string = scad_render(scad_object, file_header)
     return _write_code_to_file(rendered_string, filepath, include_orig_code)
 
+def generate(scad_object, filename='model', scadpath='../scad', renderpath='../stl', previewpath='../preview', file_header='', include_orig_code=True):
+    sfile = os.path.join(scadpath, filename+'.scad')
+    rfile = os.path.join(renderpath, filename+'.stl')
+    pfile = os.path.join(previewpath, filename+'.png')
+    scad_render_to_file(scad_object, sfile, file_header=file_header, include_orig_code=False)
+    a= subprocess.run("openscad {} --preview -o {}".format(sfile, pfile), shell=True, check=True)
+    b= subprocess.run("openscad {} -o {}".format(sfile, rfile), shell=True, check=True)
+
+
+def generate_stl(scad_object, filename='model', scadpath='../scad', renderpath='../stl', file_header='', include_orig_code = False):
+    sfile = os.path.join(scadpath, filename+'.scad')
+    rfile = os.path.join(renderpath, filename+'.stl')
+    scad_render_to_file(scad_object, sfile, file_header=file_header, include_orig_code=include_orig_code)
+    subprocess.run("openscad {} -o {}".format(sfile, rfile), shell=True, check=True)
+
+def generate_preview(scad_object, filename='model', scadpath='../scad', renderpath='../preview', file_header='', include_orig_code = False):
+    sfile = os.path.join(scadpath, filename+'.scad')
+    rfile = os.path.join(renderpath, filename+'.png')
+    scad_render_to_file(scad_object, sfile, file_header=file_header, include_orig_code=include_orig_code)
+    subprocess.run("openscad {} --preview -o {}".format(sfile, rfile), shell=True, check=True)
 
 def _write_code_to_file(rendered_string, filepath=None, include_orig_code=True):
     try:
